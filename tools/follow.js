@@ -10,7 +10,7 @@ const {
 
 (async () => {
   print(
-    chalk`{bold.green
+    chalk`{bold.red
   ▄──▄█████████████████████████▄──
   ▄█▀░█░█░█░░░░░░░░░░░░░░░░░░░▀█▄
   █░░░█░█░█░░░░░░░░░░░░░░█████░░█
@@ -140,18 +140,22 @@ const {
                 const task = [
                   ig.follow(follower.pk),
                   ig.like(lastMedia[0].pk),
+                  ig.comment(lastMedia[0].pk, msg),
                   ig.sendDirectMessage(follower.pk, msg),
                 ];
-                let [follow, like, dm] = await Promise.all(task);
+                let [follow, like, comment, dm] = await Promise.all(task);
                 follow = follow
                   ? chalk.bold.green(`Follow`)
                   : chalk.bold.red("Follow");
                 like = like ? chalk.bold.green("Like") : chalk.bold.red("Like");
+                comment = comment
+                  ? chalk.bold.green(`comment`)
+                  : chalk.bold.red("comment");
                 dm = dm ? chalk.bold.green("DM") : chalk.bold.red("DM");
                 print(
                   `▲ @${usertargetfrom.username} follower @${
                     follower.username
-                  } ⇶ [${follow}, ${like}, ${dm}] ⇶ ${chalk.cyanBright(msg)}`
+                  } ⇶ [${follow}, ${like}, ${comment}, ${dm}] ⇶ ${chalk.cyanBright(msg)}`
                 );
               } else
                 print(
