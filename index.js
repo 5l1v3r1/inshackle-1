@@ -27,7 +27,7 @@ const menuQuestion = {
   type: "list",
   name: "choice",
   message:
-    "Select tools:\n  Read the (❆ Information) first before using the tool! Nyaa~\n\n",
+    "Select tools:\n  Read the (❆ Information) first \n\n",
   choices: questionTools,
 };
 
@@ -43,7 +43,7 @@ const main = async () => {
   }
 };
 
-console.log(chalk`{bold.green
+console.log(chalk`{bold.red
   ▄──▄█████████████████████████▄──
   ▄█▀░█░█░█░░░░░░░░░░░░░░░░░░░▀█▄
   █░░░█░█░█░░░░░░░░░░░░░░█████░░█
