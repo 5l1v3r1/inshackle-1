@@ -18,23 +18,8 @@ for (var k in interfaces) {
 //DETECT IP *END!
 const questionTools = [
   "➥Information",
-  "➥LT->  Like Timeline",
-  "➥LTU-> Like Target User",
-  "➥DAP-> Delete all Post/Photo",
-  "➥F-L-> Followers Target",
-  "➥L-C-> Followers Target",
-  "➥F-L-C-> Followers Target",
-  "➥F-L-C-> Followers Target [BETA]",
-  "➥F-L-C-> Followers Target v2",
-  "➥F-L-DM-> Followers Target",
-  "➥F-L-DM-> Followers Target [BETA]",
-  "➥HTCLF-> Hashtag target all",
-  "➥HTC-> Hashtag target comments",
-  "➥HTL-> Hashtag target like",
-  "➥HTF-> Hashtag target follow",
-  "➥LTCLF-> Location Target all",
-  "➥UAF-> Unfollow All Following",
-  "➥UNB-> Unfollow Not Followback",
+  "➥LT->  increase followeres",
+  "➥LT->  unfollow your following",
   "➥EXIT->",
 ];
 
@@ -50,30 +35,15 @@ const main = async () => {
   try {
     const { choice } = await inquirer.prompt(menuQuestion);
     choice == questionTools[0] && require("./tools/info.js");
-    choice == questionTools[1] && require("./tools/LT.js");
-    choice == questionTools[2] && require("./tools/LTU.js");
-    choice == questionTools[3] && require("./tools/DAP.js");
-    choice == questionTools[4] && require("./tools/flonly.js");
-    choice == questionTools[5] && require("./tools/lconly.js");
-    choice == questionTools[6] && require("./tools/fftauto.js");
-    choice == questionTools[7] && require("./tools/fftbetaauto.js");
-    choice == questionTools[8] && require("./tools/fftautov2.js");
-    choice == questionTools[9] && require("./tools/fftdmauto.js");
-    choice == questionTools[10] && require("./tools/fftdmbetaauto.js");
-    choice == questionTools[11] && require("./tools/HTCLF.js");
-    choice == questionTools[12] && require("./tools/HTC.js");
-    choice == questionTools[13] && require("./tools/HTL.js");
-    choice == questionTools[14] && require("./tools/HTF.js"); 
-    choice == questionTools[15] && require("./tools/LTCLF.js");
-    choice == questionTools[16] && require("./tools/UAF.js");
-    choice == questionTools[17] && require("./tools/UNB.js");
+    choice == questionTools[1] && require("./tools/follow.js");
+    choice == questionTools[2] && require("./tools/unfollow.js");
     choice == questionTools[19] && process.exit();
   } catch (err) {
     print(err, "err");
   }
 };
 
-console.log(chalk`{bold.green
+console.log(chalk`{bold.red
   ▄──▄█████████████████████████▄──
   ▄█▀░█░█░█░░░░░░░░░░░░░░░░░░░▀█▄
   █░░░█░█░█░░░░░░░░░░░░░░█████░░█
