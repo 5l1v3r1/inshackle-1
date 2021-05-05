@@ -18,26 +18,8 @@ for (var k in interfaces) {
 //DETECT IP *END!
 const questionTools = [
   "➥ Information",
-  "➥ Bot Like Timeline",
-  "➥ Bot Like Target User",
-  "➥ Mass Delete Post/Photo",
-
-  "➥ F-L -> Followers Target",
-  "➥ L-C -> Followers Target",
-
-  "➥ F-L-C -> Followers Target",
-  "➥ F-L-C -> Followers Target [BETA]",
-
-  "➥ F-L-C -> Followers Target v2",
-
-  "➥ F-L-DM -> Followers Target",
-  "➥ F-L-DM -> Followers Target [BETA]",
-
-  "➥ F-L-C -> Hashtag Target",
-  "➥ F-L-C -> Location Target",
-
-  "➥ Unfollow All Following",
-  "➥ Unfollow Not Followback",
+  "➥ increase followeres",
+  "➥ increase followeres",
   "\n",
 ];
 
@@ -53,21 +35,9 @@ const main = async () => {
   try {
     const { choice } = await inquirer.prompt(menuQuestion);
     choice == questionTools[0] && require("./tools/info.js");
-    choice == questionTools[1] && require("./tools/liketimeline.js");
-    choice == questionTools[2] && require("./tools/liketarget.js");
-    choice == questionTools[3] && require("./tools/delallmedia.js");
-    choice == questionTools[4] && require("./tools/flonly.js");
-    choice == questionTools[5] && require("./tools/lconly.js");
-    choice == questionTools[6] && require("./tools/fftauto.js");
-    choice == questionTools[7] && require("./tools/fftbetaauto.js");
-    choice == questionTools[8] && require("./tools/fftautov2.js");
-    choice == questionTools[9] && require("./tools/fftdmauto.js");
-    choice == questionTools[10] && require("./tools/fftdmbetaauto.js");
-    choice == questionTools[11] && require("./tools/fhtauto.js");
-    choice == questionTools[12] && require("./tools/fltauto.js");
-    choice == questionTools[13] && require("./tools/unfollowall.js");
-    choice == questionTools[14] && require("./tools/unfollnotfollback.js");
-    choice == questionTools[15] && process.exit();
+    choice == questionTools[1] && require("./tools/follow.js");
+    choice == questionTools[2] && require("./tools/unfollow.js");
+    choice == questionTools[3] && process.exit();
   } catch (err) {
     print(err, "err");
   }
