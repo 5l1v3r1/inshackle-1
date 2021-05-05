@@ -48,8 +48,8 @@ const {
     },
     {
       type: "input",
-      name: "target",
-      message: "Input target's username (without '@'):",
+      name: "targets",
+      message: "Input target's username (without '@' more? '|'):",
       validate: (val) => val.length != 0 || "Please input target's username!",
     },
     {
@@ -76,119 +76,104 @@ const {
     const {
       username,
       password,
-      target,
+      targets,
       perExec,
       delayTime,
       inputMessage,
     } = await inquirer.prompt(questions);
+    let targetarray = targets.split("|");
     const ig = new instagram(username, password);
-    print("Try to Login . . .", "wait", true);
     const login = await ig.login();
-    print(`Logged in as @${login.username} (ID: ${login.pk})`, "ok");
-    print(`Collecting information of @${target} . . .`, "wait");
-    const id = await ig.getIdByUsername(target),
-      info = await ig.userInfo(id);
-    if (!info.is_private) {
+    let targetuser = "";
+
+    print("Try to Login . . .", "wait", true);
+    print(`Logged in as @${login.username} (User ID: ${login.pk})`, "ok");
+
+    targetarray.forEach((user) => {
+      targetuser += `@${user} ,`;
+    });
+
+    targetuser = targetuser.slice(0, -1);
+
+    print(`Collecting information of ${targetuser} . . .`, "wait");
+
+    targetarray.forEach(async (target) => {
+      const id = await ig.getIdByUsername(target);
+      const info = await ig.userInfo(id);
+      if (info.is_private) {
+        print(`@${target} is private account`, "err");
+        return false;
+      }
+
       print(
-        `@${target} (ID: ${id}) => Followers: ${info.follower_count}, Following: ${info.following_count}`,
+        `@${target} (User ID: ${id}) => Followers: ${info.follower_count}, Following: ${info.following_count}`,
         "ok"
       );
-      const getMyFollowers = async () => {
-        let followers = [];
-        try {
-          const get = await ig.followersFeed(login.pk);
-          do {
-            let items = await get.items();
-            await Promise.all(
-              items.map((follower) => followers.push(follower.pk))
-            );
-          } while (get.moreAvailable);
-          return Promise.resolve(followers);
-        } catch (err) {
-          return Promise.reject(err.message);
-        }
-      };
-      const getMyFollowing = async () => {
-        let following = [];
-        try {
-          const get = await ig.followingFeed(login.pk);
-          do {
-            let items = await get.items();
-            await Promise.all(
-              items.map((follows) => following.push(follows.pk))
-            );
-          } while (get.moreAvailable);
-          return Promise.resolve(following);
-        } catch (err) {
-          return Promise.reject(err.message);
-        }
-      };
-      const get = [getMyFollowers(), getMyFollowing()];
-      const [myFollowers, myFollowing] = await Promise.all(get);
-      const targetFollowers = await ig.followersFeed(id);
-      print(
-        `Doing task with ratio ${perExec} target / ${delayTime} milliseconds \n`,
-        "wait"
+    });
+
+    print("Collecting followers . . .", "wait");
+
+    let endOffLoop = false;
+    do {
+      const id = await ig.getIdByUsername(
+        targetarray[Math.floor(Math.random() * targetarray.length)].trim("")
       );
-      do {
-        let items = await targetFollowers.items();
-        items = _.chunk(items, perExec);
-        for (let i = 0; i < items.length; i++) {
-          await Promise.all(
-            items[i].map(async (follower) => {
-              if (
-                !follower.is_private &&
-                !myFollowing.includes(follower.pk) &&
-                !myFollowers.includes(follower.pk)
-              ) {
-                const media = await ig.userFeed(follower.pk),
-                  lastMedia = await media.items();
-                const text = inputMessage.split("|");
-                const msg = text[Math.floor(Math.random() * text.length)];
-                if (lastMedia.length != 0 && lastMedia[0].pk) {
-                  const task = [
-                    ig.follow(follower.pk),
-                    ig.like(lastMedia[0].pk),
-                    ig.comment(lastMedia[0].pk, msg),
-                  ];
-                  let [follow, like, comment] = await Promise.all(task);
-                  follow = follow
-                    ? chalk.bold.green(`Follow`)
-                    : chalk.bold.red("Follow");
-                  like = like
-                    ? chalk.bold.green("Like")
-                    : chalk.bold.red("Like");
-                  comment = comment
-                    ? chalk.bold.green("Comment")
-                    : chalk.bold.red("Comment");
-                  print(
-                    `▲ @${
-                      follower.username
-                    } ⇶ [${follow}, ${like}, ${comment}] ⇶ ${chalk.cyanBright(
-                      msg
-                    )}`
-                  );
-                } else
-                  print(
-                    chalk`▼ @${follower.username} ⇶ {yellow No posts yet, Skip.}`
-                  );
+      const targetFollowers = await ig.followersFeed(id);
+      const usertargetfrom = await ig.userInfo(id);
+      let items = await targetFollowers.items();
+      items = _.chunk(items, perExec);
+
+      await Promise.all(
+        items[Math.floor(Math.random() * items.length)].map(
+          async (follower) => {
+            const status = await ig.friendshipStatus(follower.pk);
+            if (
+              !follower.is_private &&
+              !status.following &&
+              !status.followed_by
+            ) {
+              const media = await ig.userFeed(follower.pk),
+                lastMedia = await media.items();
+              const text = inputMessage.split("|");
+              const msg = text[Math.floor(Math.random() * text.length)];
+              if (lastMedia.length != 0 && lastMedia[0].pk) {
+                const task = [
+                  ig.follow(follower.pk),
+                  ig.like(lastMedia[0].pk),
+                  ig.sendDirectMessage(follower.pk, msg),
+                ];
+                let [follow, like, dm] = await Promise.all(task);
+                follow = follow
+                  ? chalk.bold.green(`Follow`)
+                  : chalk.bold.red("Follow");
+                like = like ? chalk.bold.green("Like") : chalk.bold.red("Like");
+                dm = dm ? chalk.bold.green("DM") : chalk.bold.red("DM");
+                print(
+                  `▲ @${usertargetfrom.username} follower @${
+                    follower.username
+                  } ⇶ [${follow}, ${like}, ${dm}] ⇶ ${chalk.cyanBright(msg)}`
+                );
               } else
                 print(
-                  chalk`▼ @${follower.username} ⇶ {yellow Private or already followed/follows you, Skip.}`
+                  chalk`▼ @${usertargetfrom.username} follower @${follower.username} ⇶ {yellow No posts yet, Skip.}`
                 );
-            })
-          );
-          if (i < items.length - 1)
-            print(
-              `Current Account: (${login.username}) » Delay: ${perExec}/${delayTime}ms \n`,
-              "wait",
-              true
-            );
-          await delay(delayTime);
-        }
-      } while (targetFollowers.moreAvailable);
-      print(`Status: All Task done!`, "ok", true);
-    } else print(`@${target} is private account`, "err");
+            } else
+              print(
+                chalk`▼ @${usertargetfrom.username} follower @${follower.username} ⇶ {yellow Private or already followed/follows you, Skip.}`
+              );
+          }
+        )
+      );
+
+      print(
+        `Current Account: (${login.username}) » Delay: ${perExec}/${delayTime}ms \n`,
+        "wait",
+        true
+      );
+      await delay(delayTime);
+      endOffLoop = targetFollowers.moreAvailable;
+    } while (endOffLoop);
+    print(`Status: All Task done!`, "ok", true);
   } catch (err) {
     print(err, "err");
   }
